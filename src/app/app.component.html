@@ -1,1 +1,34 @@
-<mat-card>Simple Card</mat-card>
+<mat-card class="main-card">
+  Welcome to Safe Ride PH Web Viewer
+  <app-trip-selector></app-trip-selector>
+  <style>
+    agm-map {
+      height: 400px;
+    }
+  </style>
+  <agm-map [latitude]="lat" [longitude]="lng" [zoom]="17">
+    <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+  </agm-map>
+  <br />
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Details: </mat-card-title></mat-card-header
+    >
+    <mat-card-content>
+      <table>
+        <tr>
+          <td>Longittude:</td>
+          <td>
+            <strong>{{ lng }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Lattitude:</td>
+          <td>
+            <strong>{{ lat }}</strong>
+          </td>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</mat-card>
