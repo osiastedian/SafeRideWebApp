@@ -3,7 +3,9 @@ import { Trip } from '../interfaces/trip';
 
 export enum TripActionTypes {
   LoadTrips = '[Trip] Load Trips',
-  UpdateTrip = '[Trip] Update Trip'
+  UpdateTrip = '[Trip] Update Trip',
+  GetSelectedTrip = '[Trip] GetSelectedTrip',
+  SetSelectedTrip = '[Trip] SetSelectedTrip'
 }
 
 export class LoadTrips implements Action {
@@ -16,4 +18,13 @@ export class UpdateTrip implements Action  {
   constructor(readonly payload: Trip) {}
 }
 
-export type TripActions = LoadTrips | UpdateTrip;
+export class GetSelectedTrip implements Action {
+  readonly type = TripActionTypes.GetSelectedTrip;
+}
+
+export class SetSelectedTrip implements Action {
+  readonly type = TripActionTypes.SetSelectedTrip;
+  constructor(readonly payload: {trip: Trip}) {}
+}
+
+export type TripActions = LoadTrips | UpdateTrip | GetSelectedTrip | SetSelectedTrip;

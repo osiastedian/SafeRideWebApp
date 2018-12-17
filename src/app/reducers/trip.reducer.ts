@@ -2,11 +2,12 @@ import { TripActionTypes, TripActions } from '../actions/trip.actions';
 import { Trip } from '../interfaces/trip';
 
 export interface TripState {
-  allTrips: Trip[];
   selectedTrip: Trip;
 }
 
-export const initialState: TripState = null;
+export const initialState: TripState = {
+  selectedTrip: null
+};
 
 export function reducer(state = initialState, action: TripActions) {
   switch (action.type) {
@@ -19,6 +20,13 @@ export function reducer(state = initialState, action: TripActions) {
       return {
         ...state,
         selectedTrip: action.payload
+      };
+    case TripActionTypes.GetSelectedTrip:
+      return state;
+    case TripActionTypes.SetSelectedTrip:
+      return {
+        ...state,
+        selectedTrip: action.payload.trip
       };
     default:
       return state;

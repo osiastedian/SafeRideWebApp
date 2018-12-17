@@ -1,6 +1,6 @@
 <mat-card class="main-card">
   Welcome to Safe Ride PH Web Viewer
-  <app-trip-selector></app-trip-selector>
+  <app-trip-selector (change)="onChangeTrip($event)"></app-trip-selector>
   <style>
     agm-map {
       height: 400px;
@@ -8,6 +8,15 @@
   </style>
   <agm-map [latitude]="lat" [longitude]="lng" [zoom]="17">
     <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+    <agm-polyline strokeColor="red" *ngIf="(selectedTrip | async)">
+      <ng-container *ngFor="let loc of (selectedTrip | async).locations">
+        <agm-polyline-point
+          *ngIf="loc.provider === 'gps'"
+          [latitude]="loc.latitude"
+          [longitude]="loc.longitude"
+        ></agm-polyline-point>
+      </ng-container>
+    </agm-polyline>
   </agm-map>
   <br />
   <mat-card>
@@ -30,5 +39,84 @@
         </tr>
       </table>
     </mat-card-content>
+  </mat-card>
+  <br />
+  <mat-card >
+    <h3>Trip Details:</h3>
+    <table
+      mat-table
+      [dataSource]="tripDataSource"
+      class="mat-elevation-z8"
+    >
+      <!--
+        - Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition"
+      -->
+
+      <!-- Position Column -->
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef>No.</th>
+        <td mat-cell *matCellDef="let index=index">{{ index }}</td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="Lattitude">
+        <th mat-header-cell *matHeaderCellDef>Lattitude</th>
+        <td mat-cell *matCellDef="let element">{{ element.latitude }}</td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="Longitude">
+        <th mat-header-cell *matHeaderCellDef>Longitude</th>
+        <td mat-cell *matCellDef="let element">{{ element.longitude }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="Provider">
+        <th mat-header-cell *matHeaderCellDef>Provider</th>
+        <td mat-cell *matCellDef="let element">{{ element.provider }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="Speed_ms">
+        <th mat-header-cell *matHeaderCellDef>Speed (m/s)</th>
+        <td mat-cell *matCellDef="let element">{{ element.speed }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Speed_kmh">
+        <th mat-header-cell *matHeaderCellDef>Speed (km/h)</th>
+        <td mat-cell *matCellDef="let element">{{ element.speed * 3.6 }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Time">
+        <th mat-header-cell *matHeaderCellDef>Time</th>
+        <td mat-cell *matCellDef="let element">{{ element.time| date:'h:mm:ss a' }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+
+    <!--
+      <table [border]="'1px'">
+        <tr>
+            <th>#</th>
+            <th>Lattitude</th>
+            <th>Longitude</th>
+            <th>Provider</th>
+            <th>Speed(m/s)</th>
+            <th>Speed(km/h)</th>
+            <th>Time</th>
+
+        </tr>
+        <ng-container *ngFor="let loc of (selectedTrip | async).locations; let index = index">
+        <tr *ngIf="loc.provider === 'gps'">
+          <td>{{index}}</td>
+          <td>{{loc.latitude}}</td>
+          <td>{{loc.longitude}}</td>
+          <td>{{loc.provider}}</td>
+          <td>{{loc.speed}}</td>
+          <td>{{loc.speed * 3.6}}</td>
+          <td>{{loc.time | date:'h:mm:ss a'}}</td>
+        </tr>
+        </ng-container>
+      </table>
+    -->
   </mat-card>
 </mat-card>

@@ -1,7 +1,7 @@
 <h4>Basic mat-select</h4>
 <mat-form-field>
-  <mat-select placeholder="Select Trip">
-    <mat-option *ngFor="let trip of (trips$ | async)" [value]="trip.id">
+  <mat-select placeholder="Select Trip" (selectionChange)="onChange()" [(ngModel)]="selectedTrip" name="selectedTrip">
+    <mat-option *ngFor="let trip of (trips$ | async)" [value]="trip">
       {{trip.id}}
     </mat-option>
   </mat-select>
