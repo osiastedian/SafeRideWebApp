@@ -7,6 +7,8 @@ import { TripState } from './reducers/trip.reducer';
 import { map } from 'rxjs/operators';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { RoadsApiService } from './api/roads-api.service';
+import { Geometry } from './interfaces/roads-api-results';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +20,8 @@ export class AppComponent implements OnInit {
 
   lat = 10.3290956;
   lng = 123.9062649;
+  avg_speed = 0;
+  max_speed = 0;
   apiKey = environment.googleMaps;
   displayedColumns = [
     'position',
@@ -26,17 +30,25 @@ export class AppComponent implements OnInit {
     'Provider',
     'Speed_ms',
     'Speed_kmh',
-    'Time'
+    'Time',
+    'Bearing',
+    'Actions'
   ];
+
+  selectedNearbySearch: Location;
+  searchRadius = 500;
+  searchPlacesResults: Geometry[] = [];
 
   selectedTrip: Observable<Trip> = null;
   tripDataSource = new MatTableDataSource<Location>();
 
-
   @ViewChild(MatPaginator)
   tripPaginator: MatPaginator;
 
-  constructor(private store: Store<{ trip: TripState }>) {}
+  constructor(
+    private store: Store<{ trip: TripState }>,
+    private roadsApi: RoadsApiService
+  ) {}
 
   ngOnInit(): void {
     this.selectedTrip = this.store.pipe(
@@ -46,10 +58,32 @@ export class AppComponent implements OnInit {
     this.tripDataSource = new MatTableDataSource<Location>();
     this.tripDataSource.paginator = this.tripPaginator;
     this.selectedTrip.subscribe(data => {
-      if (!data) { return; }
+      if (!data) {
+        return;
+      }
       this.tripDataSource.data = data.locations;
+      this.tripDataSource.data = this.tripDataSource.data.filter(
+        loc => loc.bearing > 0
+      );
+      this.avg_speed = 0;
+      this.max_speed = 0;
+      const validLocs = this.tripDataSource.data.filter(loc => loc.speed !== 0);
+      validLocs.forEach(loc => (this.avg_speed += loc.speed));
+      validLocs.forEach(
+        loc =>
+          (this.max_speed =
+            loc.speed > this.max_speed ? loc.speed : this.max_speed)
+      );
+      this.avg_speed /= validLocs.length;
     });
   }
 
   onChangeTrip(trip: Trip) {}
+
+  onGetNearbyPlace(location: Location) {
+    this.selectedNearbySearch = location;
+    this.roadsApi.getNearbyPlaces(location).subscribe(data => {
+      this.searchPlacesResults = data.results.map(result => result.geometry);
+    });
+  }
 }

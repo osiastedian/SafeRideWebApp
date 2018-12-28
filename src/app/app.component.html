@@ -17,6 +17,23 @@
         ></agm-polyline-point>
       </ng-container>
     </agm-polyline>
+    <ng-container *ngIf="selectedNearbySearch">
+      <agm-circle
+        [latitude]="selectedNearbySearch.latitude"
+        [longitude]="selectedNearbySearch.longitude"
+        [radius]="searchRadius"
+        fillColor="red"
+        fillOpacity="0.6"
+      ></agm-circle>
+      <agm-circle
+        *ngFor="let geometry of searchPlacesResults"
+        [latitude]="geometry.location.lat"
+        [longitude]="geometry.location.lng"
+        [radius]="100"
+        fillColor="Yellow"
+      >
+      </agm-circle>
+    </ng-container>
   </agm-map>
   <br />
   <mat-card>
@@ -37,17 +54,37 @@
             <strong>{{ lat }}</strong>
           </td>
         </tr>
+        <tr>
+          <td>Avg Speed(m/s):</td>
+          <td>
+            <strong>{{ avg_speed | number }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Avg Speed(km/h):</td>
+          <td>
+            <strong>{{ avg_speed * 3.6 | number }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Max Speed(m/s):</td>
+          <td>
+            <strong>{{ max_speed | number }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Max Speed(km/h):</td>
+          <td>
+            <strong>{{ max_speed * 3.6 | number }}</strong>
+          </td>
+        </tr>
       </table>
     </mat-card-content>
   </mat-card>
   <br />
-  <mat-card >
+  <mat-card>
     <h3>Trip Details:</h3>
-    <table
-      mat-table
-      [dataSource]="tripDataSource"
-      class="mat-elevation-z8"
-    >
+    <table mat-table [dataSource]="tripDataSource" class="mat-elevation-z8">
       <!--
         - Note that these columns can be defined in any order.
           The actual rendered columns are set as a property on the row definition"
@@ -56,7 +93,7 @@
       <!-- Position Column -->
       <ng-container matColumnDef="position">
         <th mat-header-cell *matHeaderCellDef>No.</th>
-        <td mat-cell *matCellDef="let index=index">{{ index }}</td>
+        <td mat-cell *matCellDef="let index = index">{{ index }}</td>
       </ng-container>
 
       <!-- Name Column -->
@@ -86,11 +123,31 @@
       </ng-container>
       <ng-container matColumnDef="Time">
         <th mat-header-cell *matHeaderCellDef>Time</th>
-        <td mat-cell *matCellDef="let element">{{ element.time| date:'h:mm:ss a' }}</td>
+        <td mat-cell *matCellDef="let element">
+          {{ element.time | date: 'h:mm:ss a' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Bearing">
+        <th mat-header-cell *matHeaderCellDef>Bearing</th>
+        <td mat-cell *matCellDef="let element">{{ element.bearing }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="onGetNearbyPlace(element)"
+          >
+            Get Nearby Places
+          </button>
+        </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
+
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
     <!--
