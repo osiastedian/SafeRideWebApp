@@ -84,6 +84,9 @@
   <br />
   <mat-card>
     <h3>Trip Details:</h3>
+    <div style="margin: 15px 5px">
+      <button mat-raised-button color="primary" (click)="generateCSV()">Generate CSV</button>
+    </div>
     <table mat-table [dataSource]="tripDataSource" class="mat-elevation-z8">
       <!--
         - Note that these columns can be defined in any order.

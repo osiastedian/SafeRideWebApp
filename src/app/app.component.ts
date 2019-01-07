@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
 
   selectedTrip: Observable<Trip> = null;
   tripDataSource = new MatTableDataSource<Location>();
+  currentTrip: Trip;
 
   @ViewChild(MatPaginator)
   tripPaginator: MatPaginator;
@@ -62,6 +63,7 @@ export class AppComponent implements OnInit {
         return;
       }
       this.tripDataSource.data = data.locations;
+      this.currentTrip = data;
       this.tripDataSource.data = this.tripDataSource.data.filter(
         loc => loc.bearing > 0
       );
@@ -85,5 +87,36 @@ export class AppComponent implements OnInit {
     this.roadsApi.getNearbyPlaces(location).subscribe(data => {
       this.searchPlacesResults = data.results.map(result => result.geometry);
     });
+  }
+
+  generateCSV() {
+    if (!this.currentTrip) { return; }
+    let data: any[] = [];
+    data = this.currentTrip.locations
+    .filter(location => location.provider === 'gps')
+    .map(location => {
+      return {
+        delay: 1,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        elevation:  location.altitude,
+        name: location.time
+      };
+    });
+    const replacer = (key, value) => value === null ? '' : value; // specify how you want to handle null values here
+    const header = Object.keys(data[0]);
+    const csv = data.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','));
+    csv.unshift(header.join(','));
+    const csvArray = csv.join('\r\n');
+
+    const a = document.createElement('a');
+    const blob = new Blob([csvArray], {type: 'text/csv' }),
+    url = window.URL.createObjectURL(blob);
+
+    a.href = url;
+    a.download = `${this.currentTrip.id}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   }
 }
